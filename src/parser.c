@@ -2,24 +2,9 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
-/*
-void parsexml(xmlDocPtr doc, xmlNodePtr cur)
-{
-	xmlChar *key;
-	cur = cur->xmlChildrenNode;
-	while(cur != NULL){
-	  key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-	  if(key != NULL)
-	    printf("%s\n", key);
-	  xmlFree(key);
-	  cur = cur->next;
-	}
-}
-*/
-
 void parse_item_node(xmlDocPtr doc, xmlNodePtr item)
 {
-	xmlNode *cur;// = item->xmlChildrenNode;
+	xmlNode *cur;
 	xmlChar *text;
 
 	printf("===================\n");
@@ -38,7 +23,6 @@ void parse_item_node(xmlDocPtr doc, xmlNodePtr item)
 int main(int argc,char** argv)
 {
 	xmlDocPtr doc;
-//	xmlNodePtr cur;
 	xmlNode *cur, *root;
 
 	if(argc != 2){
@@ -62,7 +46,6 @@ int main(int argc,char** argv)
 	/* walk through top-level elements searching for items */
 	for (cur = root; cur; cur = cur->next) {
 		if (cur->type == XML_ELEMENT_NODE) {
-			// XXX: strlcmp/strncmp!!!
 			if (strcmp("rss", cur->name) == 0) {
 				xmlNode *cur2;
 
@@ -75,11 +58,6 @@ int main(int argc,char** argv)
 								if (cur3->type == XML_ELEMENT_NODE)
 									if (strcmp("item", cur3->name) == 0)
 										parse_item_node(doc, cur3);
-
-
-									//printf("======> %s\n", cur3->name);
-
-											
 							}	
 						}
 					}
@@ -88,13 +66,6 @@ int main(int argc,char** argv)
 				
 		}
 	}
-
-	/*
-	cur = cur->xmlChildrenNode;
-	while(cur != NULL){
-	  parsexml(doc, cur);
-	  cur = cur->next;
-	} */
 
 	xmlFreeDoc(doc);
 
