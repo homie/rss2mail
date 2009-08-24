@@ -6,3 +6,8 @@ obj = bld.new_task_gen(
         target = 'rss2mail',
         includes = '.')
 
+obj = bld.new_task_gen(
+        feature = 'cc cprogram',
+        source = 'parser.c',
+        target = 'parser',
+        uselib = 'LIBXML')
