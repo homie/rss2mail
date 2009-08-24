@@ -1,0 +1,8 @@
+# vim:ft=python
+
+obj = bld.new_task_gen(
+        features = 'cc cprogram',
+        source = 'main.c',
+        target = 'rss2mail',
+        includes = '.')
+
