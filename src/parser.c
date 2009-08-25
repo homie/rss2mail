@@ -46,17 +46,17 @@ int main(int argc,char** argv)
 	/* walk through top-level elements searching for items */
 	for (cur = root; cur; cur = cur->next) {
 		if (cur->type == XML_ELEMENT_NODE) {
-			if (strcmp("rss", cur->name) == 0) {
+			if (strncmp("rss", cur->name, sizeof("rss")) == 0) {
 				xmlNode *cur2;
 
 				for (cur2 = cur->xmlChildrenNode; cur2; cur2 = cur2->next) {
 					if (cur2->type == XML_ELEMENT_NODE) {
-						if (strcmp(cur2->name, "channel") == 0) {
+						if (strncmp(cur2->name, "channel", sizeof("channel")) == 0) {
 							xmlNode *cur3;
 
 							for (cur3 = cur2->xmlChildrenNode; cur3; cur3 = cur3->next) {
 								if (cur3->type == XML_ELEMENT_NODE)
-									if (strcmp("item", cur3->name) == 0)
+									if (strcmp("item", cur3->name, sizeof("item")) == 0)
 										parse_item_node(doc, cur3);
 							}	
 						}
