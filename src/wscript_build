@@ -2,9 +2,10 @@
 
 obj = bld.new_task_gen(
         features = 'cc cprogram',
-        source = 'main.c',
-        target = 'rss2mail',
-        includes = '.')
+        source = 'main.c r2m_config.c',
+        target = 'main',
+        includes = '.',
+        uselib = 'JSON')
 
 obj = bld.new_task_gen(
         feature = 'cc cprogram',

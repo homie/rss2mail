@@ -11,6 +11,7 @@ def configure(conf):
 
     conf.check_cfg(package='libxml-2.0', uselib_store='LIBXML', args='--cflags --libs')
     conf.check_cfg(package='libcurl', uselib_store='LIBCURL', args='--cflags --libs')
+    conf.check_cfg(package='json', uselib_store='JSON', args='--cflags --libs')
 
 def build(bld):
     subdirs = 'src'
