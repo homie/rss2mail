@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <pwd.h>
 #include <json.h>
 
 #define CONFIG_PATH	"/.rss2mailrc"
@@ -7,15 +9,15 @@
 char*  get_cfg_path(void)
 {
         int i;
-        char* strptr, *envpath;
+        char* strptr;
         size_t cnt;
+	struct passwd* user;
 
-	envpath = getenv("HOME");
-
+	user = getpwuid(getuid());
 	
-        cnt = strlen(envpath) + sizeof(CONFIG_PATH);
+        cnt = strlen(user->pw_dir) + sizeof(CONFIG_PATH);
         strptr = (char*)malloc(cnt);
-	snprintf(strptr, cnt, "%s%s", envpath, CONFIG_PATH);
+	snprintf(strptr, cnt, "%s%s", user->pw_dir, CONFIG_PATH);
         return strptr;
 }
 
@@ -50,7 +52,7 @@ void parse_config()
 	char *content;
 	int size, i;
 	struct json_object *obj, *root;
-	
+
 	size = load_file_to_mem(get_cfg_path(), &content);
 
 //	printf("%d\n", size);
