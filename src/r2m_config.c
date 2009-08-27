@@ -8,7 +8,6 @@
 
 char*  get_cfg_path(void)
 {
-        int i;
         char* strptr;
         size_t cnt;
 	struct passwd* user;
