@@ -15,9 +15,7 @@ char*  get_cfg_path(void)
 	
         cnt = strlen(envpath) + sizeof(CONFIG_PATH);
         strptr = (char*)malloc(cnt);
-        strncpy(strptr, envpath, cnt);
-        strncat(strptr, CONFIG_PATH, strlen(CONFIG_PATH));
-
+	snprintf(strptr, cnt, "%s%s", envpath, CONFIG_PATH);
         return strptr;
 }
 
