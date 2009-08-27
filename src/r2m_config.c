@@ -2,7 +2,28 @@
 #include <stdlib.h>
 #include <json.h>
 
-#define CONFIG_PATH	"/home/novel/.rss2mailrc"
+//#define CONFIG_PATH	"/home/novel/.rss2mailrc"
+
+char*  get_cfg_path(void)
+{
+        int i;
+        char* strptr;
+        size_t cnt;
+	extern char** envvar;
+        for(i = 0; envvar[i]; i++)
+          if(envvar[i][0] == 'H' && strstr(envvar[i], "HOME=")){
+            break;
+          }
+
+        cnt = strlen(envvar[i]) - strlen("HOME=") + strlen(".rss2mailrc") + 1;
+        strptr = (char*)malloc(cnt);
+        strncpy(strptr, &envvar[i][strlen("HOME=")], cnt);
+        strptr[strlen(strptr)] = '/';
+        strncat(strptr, ".rss2mailrc", strlen(".rss2mailrc"));
+
+        return strptr;
+}
+
 
 int load_file_to_mem(const char *filename, char **result)
 {
@@ -35,7 +56,7 @@ void parse_config()
 	int size, i;
 	struct json_object *obj, *root;
 
-	size = load_file_to_mem(CONFIG_PATH, &content);
+	size = load_file_to_mem(get_cfg_path(), &content);
 
 //	printf("%d\n", size);
 //	printf("==\n%s\n==\n", content);
