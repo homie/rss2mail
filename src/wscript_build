@@ -18,3 +18,9 @@ obj = bld.new_task_gen(
         source = 'rss2mail.c',
         target = 'rss2mail',
         uselib = 'LIBCURL LIBXML')
+
+obj = bld.new_task_gen(
+        feature = 'cc cprogram',
+        source = 'smtp.c',
+        target = 'smtp',
+        uselib = 'LIBESMTP')
