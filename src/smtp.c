@@ -13,7 +13,7 @@
 
 int tcp_connect(const char *server)
 {
-        const char *PORT = "587";
+        const char *PORT = "465";
         int err, sd;
         struct sockaddr_in sa;
         struct hostent *hp;
@@ -34,7 +34,7 @@ int tcp_connect(const char *server)
                 fprintf (stderr, "Connect error\n");
                 exit (1);
         }
-       
+/*       
 	err = read(sd, buffer, 255);
 	printf("---\n%s\n---\n", buffer);
 
@@ -42,8 +42,7 @@ int tcp_connect(const char *server)
 	printf("A buffer = \n====\n%s\n====\n", buffer);
 
 	smtp_plain_command(sd, "STARTTLS\r\n", buffer);
-	printf("A buffer = \n====\n%s\n====\n", buffer);
-
+	printf("A buffer = \n====\n%s\n====\n", buffer);*/
         return sd;
 }
 
@@ -97,6 +96,10 @@ void send_mail()
 		printf("fuck: %s %d\n", ERR_error_string(err), SSL_get_error(ssl, err));
 		exit(0);
 	}
+
+	/* XXX: split ssl_read into function as well */
+	SSL_read(ssl, buffer, MAX_BUF);
+	printf("buffer = \n----\n%s\n----\n", buffer);
 
 	smtp_ssl_command(ssl, "EHLO\r\n", buffer);
 	printf("buffer = \n----\n%s\n----\n", buffer);
