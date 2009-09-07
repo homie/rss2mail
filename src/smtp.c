@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <openssl/ssl.h>
 
+#include "r2m_config.h"
+
 #define MAX_BUF 1024
 
 /* XXX: split into other module */
@@ -25,6 +27,7 @@ char *base64(const unsigned char *input, int length)
 	BIO_get_mem_ptr(b64, &bptr);
 
 	char *buff = (char *)malloc(bptr->length);
+	printf("XXX: %s\n", bptr->data);
 	memcpy(buff, bptr->data, bptr->length-1);
 	buff[bptr->length-1] = 0;
 
@@ -93,10 +96,11 @@ int smtp_ssl_command(SSL *ssl, const char *command, char *buffer)
 	return err;
 }
 
-void send_mail()
+void send_mail(const char *host, const char *auth_string)
 {
 	int sockfd, ret, err;
 	char buffer[MAX_BUF + 1];
+	char *cmd;
 	SSL_CTX *ctx;
 	SSL *ssl;
 	BIO *sbio;
@@ -106,7 +110,7 @@ void send_mail()
 
 	ctx = SSL_CTX_new(SSLv23_method());
 
-	sockfd = tcp_connect("smtp.gmail.com");
+	sockfd = tcp_connect(host);
 
 	printf("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSS\n\n");
 
@@ -126,6 +130,11 @@ void send_mail()
 	smtp_ssl_command(ssl, "EHLO\r\n", buffer);
 	printf("buffer = \n----\n%s\n----\n", buffer);
 
+	cmd = (char *)malloc(strlen("AUTH PLAIN") + strlen(auth_string) + 3);
+	snprintf(cmd, strlen(cmd) - 1, "AUTH PLAIN %s\r\n", auth_string);
+
+	smtp_ssl_command(ssl, cmd, buffer);
+	printf("auth = \n----\n%s\n----\n", buffer);
 	/*
 	err = SSL_write(ssl, "EHLO\r\n", strlen("EHLO\r\n"));
 	printf ("SSL: err = %d\n", err);
@@ -146,8 +155,22 @@ void send_mail()
 
 int main()
 {
-	char *msg = "hello";
+	char *auth_string;
+	char *login;
+	char *password;	
 
-	printf("base64(%s) = %s\n", msg, base64(msg, strlen(msg)));
-	send_mail();
+	parse_config();
+
+	login = r2m_config->smtp->login;
+	password = r2m_config->smtp->password;
+	auth_string = (char *)malloc(strlen(login) + strlen(password) + 2);
+	auth_string[0] = '\0';
+	strcpy(auth_string + 1, login);
+	strcpy(auth_string + strlen(login) + 2, password);
+	//snprintf(auth_string, strlen(auth_string) - 1, "\000%s\000%s", login, password);
+
+	printf("auth string = %s", base64(auth_string, strlen(auth_string)));
+	send_mail(r2m_config->smtp->host, base64(auth_string, strlen(auth_string)));
+
+	free(auth_string);
 }

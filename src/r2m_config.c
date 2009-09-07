@@ -76,7 +76,6 @@ void parse_config()
 
 	obj = json_object_object_get(root, "feeds");
 
-	printf("feeds:\n");
 	for (i = 0; i < json_object_array_length(obj); i++) {
 		struct json_object *item = json_object_array_get_idx(obj, i);
 		printf("%s\n", json_object_get_string(item));
