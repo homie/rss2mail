@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <pwd.h>
 #include <json.h>
 
 #define CONFIG_PATH	"/.rss2mailrc"
+
+#include "r2m_config.h"
 
 char*  get_cfg_path(void)
 {
@@ -19,7 +22,6 @@ char*  get_cfg_path(void)
 	snprintf(strptr, cnt, "%s%s", user->pw_dir, CONFIG_PATH);
         return strptr;
 }
-
 
 int load_file_to_mem(const char *filename, char **result)
 {
@@ -54,13 +56,23 @@ void parse_config()
 
 	size = load_file_to_mem(get_cfg_path(), &content);
 
-//	printf("%d\n", size);
-//	printf("==\n%s\n==\n", content);
+	/* TODO: lazy initialization, huh? probably not a good thing to do in C... */
+	if (r2m_config == NULL)
+		r2m_config = (struct r2m_config_t*)malloc(sizeof(struct r2m_config_t*));
+
+	if (r2m_config->smtp == NULL)
+		/* allocate smtp stuff as well */
+		r2m_config->smtp = (struct r2m_smtp_t*)malloc(sizeof(struct r2m_smtp_t*));
 
 	root = json_tokener_parse(content);
+	if (is_error(root)) {
+		printf("error parsing config file!\n");
+		exit(1);
+	}
+
 	obj = json_object_object_get(root, "email");
 
-	printf("email: %s\n", json_object_get_string(obj));
+	r2m_config->email = json_object_get_string(obj);
 
 	obj = json_object_object_get(root, "feeds");
 
@@ -70,4 +82,9 @@ void parse_config()
 		printf("%s\n", json_object_get_string(item));
 	}
 
+	obj = json_object_object_get(root, "smtp");
+
+	r2m_config->smtp->host = json_object_get_string(json_object_object_get(obj, "host"));
+	r2m_config->smtp->login = json_object_get_string(json_object_object_get(obj, "login"));
+	r2m_config->smtp->password = json_object_get_string(json_object_object_get(obj, "password"));
 }
