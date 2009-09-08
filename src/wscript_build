@@ -23,4 +23,11 @@ obj = bld.new_task_gen(
         feature = 'cc cprogram',
         source = 'smtp.c r2m_config.c',
         target = 'smtp',
-        uselib = 'LIBESMTP JSON')
+        uselib = 'LIBSSL JSON')
+
+obj = bld.new_task_gen(
+	feature = 'cc cprogram',
+	source =  'daemon.c getrss.c r2m_config.c xmlparser.c',
+	target =  'rss2maild',
+	uselib =  'LIBCURL LIBXML JSON')
+
