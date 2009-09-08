@@ -15,7 +15,10 @@ char*  get_cfg_path(void)
 	user = getpwuid(getuid());
 	
         cnt = strlen(user->pw_dir) + sizeof(CONFIG_PATH);
-        strptr = (char*)malloc(cnt);
+	if(!strptr)
+          strptr = (char*)malloc(cnt);
+	else
+	  strptr = (char*)realloc((void*)strptr, cnt);
 	snprintf(strptr, cnt, "%s%s", user->pw_dir, CONFIG_PATH);
         return strptr;
 }
