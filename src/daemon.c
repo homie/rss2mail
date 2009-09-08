@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <linux/limits.h>
 #include <signal.h>
 #include <string.h>
 #include <time.h>

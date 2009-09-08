@@ -13,7 +13,8 @@ def configure(conf):
     conf.check_cfg(package='libcurl', uselib_store='LIBCURL', args='--cflags --libs')
     conf.check_cfg(package='json', uselib_store='JSON', args='--cflags --libs')
     conf.check_cfg(path='libesmtp-config', args='--cflags --libs', package='', uselib_store='LIBESMTP')
-    conf.check_cfg(package='libssl', uselib_store='LIBSSL', args='--cflags --libs')
+#    conf.check_cfg(package='libssl', uselib_store='LIBSSL', args='--cflags --libs')
+    conf.env.append_value('LIB', 'ssl')
 
 def build(bld):
     subdirs = 'src'

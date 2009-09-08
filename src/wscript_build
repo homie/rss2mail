@@ -23,7 +23,7 @@ obj = bld.new_task_gen(
         feature = 'cc cprogram',
         source = 'smtp.c r2m_config.c',
         target = 'smtp',
-        uselib = 'LIBSSL JSON')
+        uselib = 'JSON')
 
 obj = bld.new_task_gen(
 	feature = 'cc cprogram',
