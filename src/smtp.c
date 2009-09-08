@@ -27,7 +27,6 @@ char *base64(const unsigned char *input, int length)
 	BIO_get_mem_ptr(b64, &bptr);
 
 	char *buff = (char *)malloc(bptr->length);
-	printf("XXX: %s\n", bptr->data);
 	memcpy(buff, bptr->data, bptr->length-1);
 	buff[bptr->length-1] = 0;
 
@@ -59,15 +58,7 @@ int tcp_connect(const char *server)
                 fprintf (stderr, "Connect error\n");
                 exit (1);
         }
-/*       
-	err = read(sd, buffer, 255);
-	printf("---\n%s\n---\n", buffer);
 
-	smtp_plain_command(sd, "EHLO\r\n", buffer);
-	printf("A buffer = \n====\n%s\n====\n", buffer);
-
-	smtp_plain_command(sd, "STARTTLS\r\n", buffer);
-	printf("A buffer = \n====\n%s\n====\n", buffer);*/
         return sd;
 }
 
@@ -96,11 +87,11 @@ int smtp_ssl_command(SSL *ssl, const char *command, char *buffer)
 	return err;
 }
 
-void send_mail(const char *host, const char *auth_string)
+void send_mail(const char *host, const char *login, const char *password)
 {
 	int sockfd, ret, err;
 	char buffer[MAX_BUF + 1];
-	char *cmd;
+	char *cmd, *tmp;
 	SSL_CTX *ctx;
 	SSL *ssl;
 	BIO *sbio;
@@ -111,8 +102,6 @@ void send_mail(const char *host, const char *auth_string)
 	ctx = SSL_CTX_new(SSLv23_method());
 
 	sockfd = tcp_connect(host);
-
-	printf("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSS\n\n");
 
 	ssl = SSL_new(ctx);
 	sbio = BIO_new_socket(sockfd, BIO_NOCLOSE);
@@ -130,23 +119,27 @@ void send_mail(const char *host, const char *auth_string)
 	smtp_ssl_command(ssl, "EHLO\r\n", buffer);
 	printf("buffer = \n----\n%s\n----\n", buffer);
 
-	cmd = (char *)malloc(strlen("AUTH PLAIN") + strlen(auth_string) + 3);
-	snprintf(cmd, strlen(cmd) - 1, "AUTH PLAIN %s\r\n", auth_string);
+	smtp_ssl_command(ssl, "AUTH LOGIN\r\n", buffer);
+	printf("auth = \n----\n%s\n----\n", buffer);
+
+	tmp = base64(login, strlen(login));
+	cmd = (char *)malloc(strlen(tmp) + 3);
+
+	strcpy(cmd, tmp);
+	strcat(cmd, "\r\n");
+	smtp_ssl_command(ssl, cmd, buffer);
+	printf("auth = \n!!!!\n%s\n!!!!\n", buffer);
+	
+	free(tmp);
+	free(cmd);
+
+	tmp = base64(password, strlen(password));
+	cmd = (char *)malloc(strlen(tmp) + 3);
+	strcpy(cmd, tmp);
+	strcat(cmd, "\r\n");
 
 	smtp_ssl_command(ssl, cmd, buffer);
-	printf("auth = \n----\n%s\n----\n", buffer);
-	/*
-	err = SSL_write(ssl, "EHLO\r\n", strlen("EHLO\r\n"));
-	printf ("SSL: err = %d\n", err);
-
-	ret = SSL_read(ssl, buffer, MAX_BUF);
-	printf("%s\n", buffer);
-	
-	err = SSL_write(ssl, "AUTH PLAIN\r\n", strlen("AUTH PLAIN\r\n"));
-	printf ("SSL: err = %d\n", err);
-
-	ret = SSL_read(ssl, buffer, MAX_BUF);
-	printf("%s\n", buffer);*/
+	printf("auth = \n???\n%s\n??????????\n", buffer);
 
 	SSL_free(ssl);
 	SSL_CTX_free(ctx);
@@ -167,10 +160,10 @@ int main()
 	auth_string[0] = '\0';
 	strcpy(auth_string + 1, login);
 	strcpy(auth_string + strlen(login) + 2, password);
-	//snprintf(auth_string, strlen(auth_string) - 1, "\000%s\000%s", login, password);
 
-	printf("auth string = %s", base64(auth_string, strlen(auth_string)));
-	send_mail(r2m_config->smtp->host, base64(auth_string, strlen(auth_string)));
+	printf("login: %s\n", r2m_config->smtp->login);
+	send_mail(r2m_config->smtp->host, r2m_config->smtp->login,
+			r2m_config->smtp->password);
 
 	free(auth_string);
 }
